@@ -1,0 +1,40 @@
+{% for goal in goals %}
+<div class="list-item" id="goal-{{ goal.id }}">
+    <!-- View mode -->
+    <div class="list-item-view" id="goal-view-{{ goal.id }}">
+        <div class="list-item-content">
+            <a href="/goals/{{ goal.id }}" class="list-item-title">
+                <i class="lucide lucide-target"></i> {{ goal.title }}
+            </a>
+            {% if goal.description %}<p class="muted">{{ goal.description }}</p>{% endif %}
+            <span class="badge"><i class="lucide lucide-clipboard-list"></i> {{ goal.plans | length }} plan{{ 's' if goal.plans | length != 1 else '' }}</span>
+        </div>
+        <div class="list-item-actions">
+            <button onclick="document.getElementById('goal-view-{{ goal.id }}').style.display='none'; document.getElementById('goal-edit-{{ goal.id }}').style.display='flex'" class="btn-icon" title="Edit">
+                <i class="lucide lucide-pencil"></i>
+            </button>
+            <button
+                hx-delete="/api/goals/{{ goal.id }}"
+                hx-target="#goal-list"
+                hx-swap="innerHTML"
+                hx-confirm="Delete goal '{{ goal.title }}'?"
+                class="btn-icon btn-icon-danger"
+                title="Delete"
+            ><i class="lucide lucide-trash-2"></i></button>
+        </div>
+    </div>
+    <!-- Edit mode -->
+    <form class="list-item-edit" id="goal-edit-{{ goal.id }}" style="display:none"
+          hx-put="/api/goals/{{ goal.id }}" hx-target="#goal-list" hx-swap="innerHTML">
+        <input type="text" name="title" value="{{ goal.title }}" required class="input input-sm">
+        <input type="text" name="description" value="{{ goal.description or '' }}" placeholder="Description" class="input input-sm">
+        <button type="submit" class="btn btn-primary btn-sm"><i class="lucide lucide-check"></i> Save</button>
+        <button type="button" class="btn btn-sm" onclick="document.getElementById('goal-edit-{{ goal.id }}').style.display='none'; document.getElementById('goal-view-{{ goal.id }}').style.display='flex'">Cancel</button>
+    </form>
+</div>
+{% else %}
+<div class="empty-card">
+    <i class="lucide lucide-target"></i>
+    <p>No goals yet. Add one above.</p>
+</div>
+{% endfor %}

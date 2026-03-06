@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ plan.title }} — LifeOS{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <a href="/goals/{{ plan.goal_id }}" class="back-link"><i class="lucide lucide-arrow-left"></i> Back to goal</a>
+    <h1><i class="lucide lucide-clipboard-list"></i> {{ plan.title }}</h1>
+    <p class="muted"><i class="lucide lucide-calendar"></i> {{ plan.plan_date.strftime('%A, %B %d, %Y') }}</p>
+    {% if plan.description %}<p class="plan-desc">{{ plan.description }}</p>{% endif %}
+</div>
+
+{% set done = plan.tasks | selectattr('status.value', 'equalto', 'DONE') | list | length if plan.tasks else 0 %}
+{% set total = plan.tasks | length if plan.tasks else 0 %}
+{% if total > 0 %}
+<div class="plan-stats">
+    <div class="stat-card">
+        <span class="stat-number">{{ total }}</span>
+        <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number stat-success">{{ done }}</span>
+        <span class="stat-label">Done</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number stat-warning">{{ total - done }}</span>
+        <span class="stat-label">Left</span>
+    </div>
+    <div class="stat-card stat-card-wide">
+        <div class="progress-bar progress-bar-lg">
+            <div class="progress-fill" style="width: {{ (done / total * 100) if total else 0 }}%"></div>
+        </div>
+        <span class="stat-label">{{ (done / total * 100) | round | int if total else 0 }}% complete</span>
+    </div>
+</div>
+{% endif %}
+
+<section>
+    <div class="section-header">
+        <h2><i class="lucide lucide-list-checks"></i> Tasks</h2>
+    </div>
+
+    <form hx-post="/api/tasks" hx-target="#task-list" hx-swap="innerHTML" class="inline-form">
+        <input type="hidden" name="plan_id" value="{{ plan.id }}">
+        <div class="form-group">
+            <i class="lucide lucide-plus form-icon"></i>
+            <input type="text" name="title" placeholder="New task..." required class="input input-icon">
+        </div>
+        <input type="text" name="description" placeholder="Description (optional)" class="input">
+        <select name="priority" class="input input-sm">
+            <option value="0">Normal</option>
+            <option value="1">High</option>
+            <option value="2">Urgent</option>
+        </select>
+        <button type="submit" class="btn btn-primary"><i class="lucide lucide-plus"></i> Add</button>
+    </form>
+
+    <div id="task-list">
+        {% include "partials/task_list.html" %}
+    </div>
+</section>
+{% endblock %}

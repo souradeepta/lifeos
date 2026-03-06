@@ -1,0 +1,18 @@
+{% if task and task.subtasks %}
+{% for st in task.subtasks %}
+<div class="subtask-row">
+    <form hx-patch="/api/subtasks/{{ st.id }}/toggle" hx-target="#subtasks-{{ task.id }}" hx-swap="innerHTML" style="display:inline">
+        <button type="submit" class="check-btn check-sm {{ 'checked' if st.is_done else '' }}">
+            {% if st.is_done %}<i class="lucide lucide-check"></i>{% else %}&nbsp;{% endif %}
+        </button>
+    </form>
+    <span class="{{ 'done-text' if st.is_done else '' }}">{{ st.title }}</span>
+    <button
+        hx-delete="/api/subtasks/{{ st.id }}"
+        hx-target="#subtasks-{{ task.id }}"
+        hx-swap="innerHTML"
+        class="btn-icon btn-icon-danger"
+    ><i class="lucide lucide-x"></i></button>
+</div>
+{% endfor %}
+{% endif %}

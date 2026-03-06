@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LifeOS{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/font/lucide.min.css">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="lucide lucide-orbit"></i>
+            <span>LifeOS</span>
+        </div>
+        <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+            <i class="lucide lucide-layout-dashboard"></i> Dashboard
+        </a>
+        <a href="/today" class="nav-link {% if request.url.path == '/today' %}active{% endif %}">
+            <i class="lucide lucide-sun"></i> Today
+        </a>
+        <a href="/upcoming" class="nav-link {% if request.url.path == '/upcoming' %}active{% endif %}">
+            <i class="lucide lucide-calendar-range"></i> Upcoming
+        </a>
+        <div class="nav-divider"></div>
+        <div class="nav-section">Domains</div>
+        {% if domains is defined %}
+        {% set domain_icons = {
+            'WORK': 'briefcase',
+            'STUDY': 'book-open',
+            'INTERVIEW': 'message-circle',
+            'PERSONAL_DEV': 'sparkles',
+            'HOBBIES': 'palette',
+            'WORKOUTS': 'dumbbell'
+        } %}
+        {% for d in domains %}
+        <a href="/domains/{{ d.id }}" class="nav-link domain-link {% if request.url.path == '/domains/' ~ d.id|string %}active{% endif %}" style="--domain-color: {{ d.color }}">
+            <i class="lucide lucide-{{ domain_icons.get(d.domain_type.value, 'circle') }}"></i>
+            {{ d.name }}
+        </a>
+        {% endfor %}
+        {% endif %}
+    </nav>
+
+    <!-- Mobile header -->
+    <div class="mobile-header">
+        <div class="logo-sm">
+            <i class="lucide lucide-orbit"></i> LifeOS
+        </div>
+        <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+            <i class="lucide lucide-menu"></i>
+        </button>
+    </div>
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

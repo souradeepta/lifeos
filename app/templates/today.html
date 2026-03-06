@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Today — LifeOS{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <h1><i class="lucide lucide-sun"></i> Today</h1>
+    <p class="subtitle">{{ today.strftime('%A, %B %d, %Y') }}</p>
+</div>
+
+{% if plans %}
+    {% for plan in plans %}
+    <div class="today-plan-card">
+        <a href="/plans/{{ plan.id }}" class="plan-link">
+            <h3><i class="lucide lucide-clipboard-list"></i> {{ plan.title }}</h3>
+        </a>
+        <div class="task-progress">
+            {% set done = plan.tasks | selectattr('status.value', 'equalto', 'DONE') | list | length %}
+            {% set total = plan.tasks | length %}
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ (done / total * 100) if total else 0 }}%"></div>
+            </div>
+            <span class="muted">{{ done }}/{{ total }} tasks done</span>
+        </div>
+        <div class="task-quick-list">
+            {% for task in plan.tasks %}
+            <div class="task-row {{ 'task-done' if task.status.value == 'DONE' else '' }}">
+                <form hx-patch="/api/tasks/{{ task.id }}/status" hx-target="closest .today-plan-card" hx-swap="outerHTML" style="display:inline">
+                    <input type="hidden" name="status" value="{{ 'TODO' if task.status.value == 'DONE' else 'DONE' }}">
+                    <button type="submit" class="check-btn {{ 'checked' if task.status.value == 'DONE' else '' }}">
+                        {% if task.status.value == 'DONE' %}<i class="lucide lucide-check"></i>{% else %}&nbsp;{% endif %}
+                    </button>
+                </form>
+                <span>{{ task.title }}</span>
+                {% if task.priority > 0 %}
+                <span class="priority-badge priority-{{ task.priority }}">
+                    <i class="lucide lucide-{{ 'alert-triangle' if task.priority == 2 else 'arrow-up' }}"></i>
+                    {{ 'HIGH' if task.priority == 1 else 'URGENT' }}
+                </span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="lucide lucide-calendar-off"></i></div>
+        <p>No plans for today. Create a plan from one of your goals to get started.</p>
+        <div class="card-grid mt-1">
+            {% set domain_icons = {
+                'WORK': 'briefcase',
+                'STUDY': 'book-open',
+                'INTERVIEW': 'message-circle',
+                'PERSONAL_DEV': 'sparkles',
+                'HOBBIES': 'palette',
+                'WORKOUTS': 'dumbbell'
+            } %}
+            {% for d in domains %}
+            <a href="/domains/{{ d.id }}" class="domain-card-sm" style="--domain-color: {{ d.color }}">
+                <i class="lucide lucide-{{ domain_icons.get(d.domain_type.value, 'circle') }}"></i>
+                {{ d.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

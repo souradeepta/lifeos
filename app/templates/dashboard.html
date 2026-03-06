@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — LifeOS{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <h1><i class="lucide lucide-layout-dashboard"></i> Dashboard</h1>
+    <p class="subtitle">{{ today.strftime('%A, %B %d, %Y') }}</p>
+</div>
+
+{% set domain_icons = {
+    'WORK': 'briefcase',
+    'STUDY': 'book-open',
+    'INTERVIEW': 'message-circle',
+    'PERSONAL_DEV': 'sparkles',
+    'HOBBIES': 'palette',
+    'WORKOUTS': 'dumbbell'
+} %}
+
+<section class="card-grid">
+    {% for domain in domains %}
+    <a href="/domains/{{ domain.id }}" class="domain-card" style="--domain-color: {{ domain.color }}">
+        <div class="domain-card-icon" style="background: {{ domain.color }}20; color: {{ domain.color }}">
+            <i class="lucide lucide-{{ domain_icons.get(domain.domain_type.value, 'circle') }}"></i>
+        </div>
+        <div class="domain-card-body">
+            <h3>{{ domain.name }}</h3>
+            <p class="muted">{{ domain.description or '' }}</p>
+            <span class="badge">{{ domain.goals | length }} goal{{ 's' if domain.goals | length != 1 else '' }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</section>
+
+<!-- Today's Plans -->
+<section class="mt-2">
+    <div class="section-header">
+        <h2><i class="lucide lucide-sun"></i> Today's Plans</h2>
+        <a href="/today" class="link-subtle">View all <i class="lucide lucide-arrow-right"></i></a>
+    </div>
+    {% if today_plans %}
+        {% for plan in today_plans %}
+        <a href="/plans/{{ plan.id }}" class="plan-row">
+            <div class="plan-row-left">
+                <i class="lucide lucide-clipboard-list"></i>
+                <span class="plan-title">{{ plan.title }}</span>
+            </div>
+            <div class="plan-row-right">
+                {% set done = plan.tasks | selectattr('status.value', 'equalto', 'DONE') | list | length %}
+                {% set total = plan.tasks | length %}
+                {% if total > 0 %}
+                <div class="mini-progress">
+                    <div class="mini-progress-fill" style="width: {{ (done / total * 100) }}%"></div>
+                </div>
+                <span class="badge">{{ done }}/{{ total }}</span>
+                {% else %}
+                <span class="badge">No tasks</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="empty-card">
+            <i class="lucide lucide-calendar-off"></i>
+            <p>No plans for today yet. Go to a goal to create one.</p>
+        </div>
+    {% endif %}
+</section>
+
+<!-- Upcoming Plans -->
+<section class="mt-2">
+    <div class="section-header">
+        <h2><i class="lucide lucide-calendar-range"></i> Upcoming (Next 7 Days)</h2>
+        <a href="/upcoming" class="link-subtle">View all <i class="lucide lucide-arrow-right"></i></a>
+    </div>
+    {% if upcoming_plans %}
+        {% for plan in upcoming_plans %}
+        <a href="/plans/{{ plan.id }}" class="plan-row">
+            <div class="plan-row-left">
+                <i class="lucide lucide-clipboard-list"></i>
+                <div>
+                    <span class="plan-title">{{ plan.title }}</span>
+                    <span class="muted small">{{ plan.plan_date.strftime('%a, %b %d') }}</span>
+                </div>
+            </div>
+            <div class="plan-row-right">
+                <span class="badge">{{ plan.tasks | length }} task{{ 's' if plan.tasks | length != 1 else '' }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="empty-card">
+            <i class="lucide lucide-calendar-check"></i>
+            <p>No upcoming plans in the next 7 days.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

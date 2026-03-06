@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% set domain_icons = {
+    'WORK': 'briefcase',
+    'STUDY': 'book-open',
+    'INTERVIEW': 'message-circle',
+    'PERSONAL_DEV': 'sparkles',
+    'HOBBIES': 'palette',
+    'WORKOUTS': 'dumbbell'
+} %}
+{% block title %}{{ domain.name }} — LifeOS{% endblock %}
+{% block content %}
+<div class="page-hero" style="--hero-accent: {{ domain.color }}">
+    <a href="/" class="back-link"><i class="lucide lucide-arrow-left"></i> Dashboard</a>
+    <h1>
+        <span class="hero-icon" style="background: {{ domain.color }}20; color: {{ domain.color }}">
+            <i class="lucide lucide-{{ domain_icons.get(domain.domain_type.value, 'circle') }}"></i>
+        </span>
+        {{ domain.name }}
+    </h1>
+    <p class="muted">{{ domain.description or '' }}</p>
+</div>
+
+<section>
+    <div class="section-header">
+        <h2><i class="lucide lucide-target"></i> Goals</h2>
+    </div>
+
+    <form hx-post="/api/goals" hx-target="#goal-list" hx-swap="innerHTML" class="inline-form">
+        <input type="hidden" name="domain_id" value="{{ domain.id }}">
+        <div class="form-group">
+            <i class="lucide lucide-plus form-icon"></i>
+            <input type="text" name="title" placeholder="New goal..." required class="input input-icon">
+        </div>
+        <input type="text" name="description" placeholder="Description (optional)" class="input">
+        <button type="submit" class="btn btn-primary"><i class="lucide lucide-plus"></i> Add</button>
+    </form>
+
+    <div id="goal-list">
+        {% include "partials/goal_list.html" %}
+    </div>
+</section>
+{% endblock %}

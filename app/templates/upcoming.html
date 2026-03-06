@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Upcoming — LifeOS{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <h1><i class="lucide lucide-calendar-range"></i> Upcoming</h1>
+    <p class="subtitle">Next 30 days from {{ today.strftime('%B %d, %Y') }}</p>
+</div>
+
+{% if plans %}
+    {% set ns = namespace(current_date=None) %}
+    {% for plan in plans %}
+        {% if plan.plan_date != ns.current_date %}
+            {% set ns.current_date = plan.plan_date %}
+            <div class="date-divider">
+                <span class="date-label">
+                    <i class="lucide lucide-calendar"></i>
+                    {{ plan.plan_date.strftime('%A, %B %d') }}
+                    {% if plan.plan_date == today %}
+                    <span class="badge badge-primary">Today</span>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+        <div class="upcoming-plan-card">
+            <a href="/plans/{{ plan.id }}" class="plan-link">
+                <div class="plan-row-left">
+                    <i class="lucide lucide-clipboard-list"></i>
+                    <div>
+                        <span class="plan-title">{{ plan.title }}</span>
+                        {% if plan.tasks %}
+                        {% set done = plan.tasks | selectattr('status.value', 'equalto', 'DONE') | list | length %}
+                        {% set total = plan.tasks | length %}
+                        <div class="mini-progress mt-05">
+                            <div class="mini-progress-fill" style="width: {{ (done / total * 100) if total else 0 }}%"></div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="badge">{{ plan.tasks | length }} task{{ 's' if plan.tasks | length != 1 else '' }}</span>
+            </a>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="lucide lucide-calendar-check"></i></div>
+        <p>No upcoming plans. Start by creating goals and plans in your domains.</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+{% for plan in plans %}
+<div class="list-item" id="plan-{{ plan.id }}">
+    <!-- View mode -->
+    <div class="list-item-view" id="plan-view-{{ plan.id }}">
+        <div class="list-item-content">
+            <a href="/plans/{{ plan.id }}" class="list-item-title">
+                <i class="lucide lucide-clipboard-list"></i> {{ plan.title }}
+            </a>
+            <span class="muted"><i class="lucide lucide-calendar"></i> {{ plan.plan_date.strftime('%b %d, %Y') }}</span>
+            <span class="badge">{{ plan.tasks | length }} task{{ 's' if plan.tasks | length != 1 else '' }}</span>
+        </div>
+        <div class="list-item-actions">
+            <button onclick="document.getElementById('plan-view-{{ plan.id }}').style.display='none'; document.getElementById('plan-edit-{{ plan.id }}').style.display='flex'" class="btn-icon" title="Edit">
+                <i class="lucide lucide-pencil"></i>
+            </button>
+            <button
+                hx-delete="/api/plans/{{ plan.id }}"
+                hx-target="#plan-list"
+                hx-swap="innerHTML"
+                hx-confirm="Delete plan '{{ plan.title }}'?"
+                class="btn-icon btn-icon-danger"
+                title="Delete"
+            ><i class="lucide lucide-trash-2"></i></button>
+        </div>
+    </div>
+    <!-- Edit mode -->
+    <form class="list-item-edit" id="plan-edit-{{ plan.id }}" style="display:none"
+          hx-put="/api/plans/{{ plan.id }}" hx-target="#plan-list" hx-swap="innerHTML">
+        <input type="text" name="title" value="{{ plan.title }}" required class="input input-sm">
+        <input type="date" name="plan_date" value="{{ plan.plan_date.isoformat() }}" required class="input input-sm">
+        <input type="text" name="description" value="{{ plan.description or '' }}" placeholder="Description" class="input input-sm">
+        <button type="submit" class="btn btn-primary btn-sm"><i class="lucide lucide-check"></i> Save</button>
+        <button type="button" class="btn btn-sm" onclick="document.getElementById('plan-edit-{{ plan.id }}').style.display='none'; document.getElementById('plan-view-{{ plan.id }}').style.display='flex'">Cancel</button>
+    </form>
+</div>
+{% else %}
+<div class="empty-card">
+    <i class="lucide lucide-clipboard-list"></i>
+    <p>No plans yet. Add one above.</p>
+</div>
+{% endfor %}
