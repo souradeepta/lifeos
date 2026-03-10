@@ -55,3 +55,6 @@ coverage.xml
 
 # Alembic — keep migrations but not the compiled DB
 # db/migrations/versions/*.pyc handled by __pycache__ above
+
+# AI development session log (local only)
+AI_DEV_LOG.md

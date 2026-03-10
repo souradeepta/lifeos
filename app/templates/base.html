@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="{{ 'light' if request.cookies.get('lifeos-theme') == 'light' else '' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}LifeOS{% endblock %}</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css?v=3">
+    <!-- Apply theme instantly from cookie before first paint -->
+    <script>
+        (function(){
+            var m = document.cookie.match(/lifeos-theme=([^;]+)/);
+            if (m && m[1] === 'light') document.documentElement.classList.add('light');
+        })();
+    </script>
     <!-- Lucide SVG icons — real inline SVGs, works offline after first load -->
     <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
@@ -44,6 +51,11 @@
         {% endif %}
 
         <div class="sidebar-footer">
+            <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                <i data-lucide="sun" class="theme-icon-sun"></i>
+                <i data-lucide="moon" class="theme-icon-moon"></i>
+                <span id="theme-label">Light mode</span>
+            </button>
             <div class="network-pill">
                 <i data-lucide="wifi"></i>
                 <span>{{ local_ip }}:8000</span>
@@ -70,6 +82,21 @@
         lucide.createIcons();
         document.addEventListener('htmx:afterSwap',   () => lucide.createIcons());
         document.addEventListener('htmx:afterSettle', () => lucide.createIcons());
+    </script>
+
+    <!-- Theme toggle — persisted in cookie (server-side, reliable across all pages) -->
+    <script>
+        (function () {
+            window.toggleTheme = function () {
+                const isLight = document.documentElement.classList.toggle('light');
+                document.cookie = 'lifeos-theme=' + (isLight ? 'light' : 'dark') + ';path=/;max-age=31536000';
+                const label = document.getElementById('theme-label');
+                if (label) label.textContent = isLight ? 'Dark mode' : 'Light mode';
+            };
+
+            const label = document.getElementById('theme-label');
+            if (label) label.textContent = document.documentElement.classList.contains('light') ? 'Dark mode' : 'Light mode';
+        })();
     </script>
 </body>
 </html>

@@ -9,6 +9,7 @@ from app.services import domain_service, goal_service, plan_service, task_servic
 router = APIRouter(tags=["pages"])
 
 
+
 @router.get("/")
 async def dashboard(request: Request, db: AsyncSession = Depends(get_db)) -> "Response":
     domains = await domain_service.list_domains(db)

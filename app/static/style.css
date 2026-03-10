@@ -1,4 +1,4 @@
-/* LifeOS — Polished dark theme with gradients, icons, depth */
+/* LifeOS — Dark theme (default) + Light theme */
 :root {
     --bg: #0b0d14;
     --bg-gradient: linear-gradient(135deg, #0b0d14 0%, #111827 100%);
@@ -21,6 +21,27 @@
     --sidebar-width: 240px;
     --shadow: 0 2px 8px rgba(0,0,0,0.3);
     --shadow-lg: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+html.light {
+    --bg: #f8f8f8;
+    --bg-gradient: none;
+    --surface: #ffffff;
+    --surface-2: #f3f3f3;
+    --surface-hover: #eeeeee;
+    --border: #e2e2e2;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --primary: #6366f1;
+    --primary-hover: #4f52d6;
+    --primary-glow: rgba(99, 102, 241, 0.10);
+    --danger: #ef4444;
+    --danger-glow: rgba(239, 68, 68, 0.08);
+    --success: #16a34a;
+    --success-glow: rgba(22, 163, 74, 0.12);
+    --warning: #d97706;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.10);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -746,6 +767,43 @@ select.input { cursor: pointer; }
 
 .page-header { margin-bottom: 28px; }
 
+/* ===== Theme toggle ===== */
+.theme-toggle {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 7px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 10px;
+    letter-spacing: 0.01em;
+}
+.theme-toggle:hover {
+    color: var(--text);
+    border-color: var(--primary);
+    background: var(--primary-glow);
+    box-shadow: 0 0 0 2px var(--primary-glow);
+}
+.theme-toggle svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* Icon visibility — CSS-driven so it works before AND after Lucide SVG injection */
+html:not(.light)  .theme-icon-moon { display: none; }
+html:not(.light)  .theme-icon-sun  { display: inline-flex; color: #fbbf24; }
+html.light .theme-icon-sun  { display: none; }
+html.light .theme-icon-moon { display: inline-flex; color: var(--primary); }
+
+/* Light mode toggle pill */
+html.light .theme-toggle { background: var(--surface-2); border-color: var(--border); }
+
 /* ===== Sidebar footer ===== */
 .sidebar-footer {
     margin-top: auto;
@@ -811,6 +869,7 @@ select.input { cursor: pointer; }
     border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
     border-radius: var(--radius-lg);
     padding: 18px 22px;
+    margin-bottom: 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
