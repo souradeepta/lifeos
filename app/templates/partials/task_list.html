@@ -5,7 +5,7 @@
         <form hx-patch="/api/tasks/{{ task.id }}/status" hx-target="#task-list" hx-swap="innerHTML" style="display:inline">
             <input type="hidden" name="status" value="{{ 'TODO' if task.status.value == 'DONE' else 'DONE' }}">
             <button type="submit" class="check-btn {{ 'checked' if task.status.value == 'DONE' else '' }}">
-                {% if task.status.value == 'DONE' %}<i class="lucide lucide-check"></i>{% else %}&nbsp;{% endif %}
+                {% if task.status.value == 'DONE' %}<i data-lucide="check"></i>{% else %}&nbsp;{% endif %}
             </button>
         </form>
         <div class="task-info">
@@ -14,13 +14,13 @@
         </div>
         {% if task.priority > 0 %}
         <span class="priority-badge priority-{{ task.priority }}">
-            <i class="lucide lucide-{{ 'alert-triangle' if task.priority == 2 else 'arrow-up' }}"></i>
+            <i data-lucide="{{ 'alert-triangle' if task.priority == 2 else 'arrow-up' }}"></i>
             {{ 'HIGH' if task.priority == 1 else 'URGENT' }}
         </span>
         {% endif %}
         <div class="list-item-actions">
             <button onclick="document.getElementById('task-view-{{ task.id }}').style.display='none'; document.getElementById('task-edit-{{ task.id }}').style.display='flex'" class="btn-icon" title="Edit">
-                <i class="lucide lucide-pencil"></i>
+                <i data-lucide="pencil"></i>
             </button>
             <button
                 hx-delete="/api/tasks/{{ task.id }}"
@@ -29,7 +29,7 @@
                 hx-confirm="Delete task?"
                 class="btn-icon btn-icon-danger"
                 title="Delete"
-            ><i class="lucide lucide-trash-2"></i></button>
+            ><i data-lucide="trash-2"></i></button>
         </div>
     </div>
     <!-- Edit mode -->
@@ -42,7 +42,7 @@
             <option value="1" {{ 'selected' if task.priority == 1 else '' }}>High</option>
             <option value="2" {{ 'selected' if task.priority == 2 else '' }}>Urgent</option>
         </select>
-        <button type="submit" class="btn btn-primary btn-sm"><i class="lucide lucide-check"></i> Save</button>
+        <button type="submit" class="btn btn-primary btn-sm"><i data-lucide="check"></i> Save</button>
         <button type="button" class="btn btn-sm" onclick="document.getElementById('task-edit-{{ task.id }}').style.display='none'; document.getElementById('task-view-{{ task.id }}').style.display='flex'">Cancel</button>
     </form>
 
@@ -53,12 +53,12 @@
 
     <form hx-post="/api/tasks/{{ task.id }}/subtasks" hx-target="#subtasks-{{ task.id }}" hx-swap="innerHTML" class="subtask-form">
         <input type="text" name="title" placeholder="Add subtask..." required class="input input-sm">
-        <button type="submit" class="btn btn-sm"><i class="lucide lucide-plus"></i></button>
+        <button type="submit" class="btn btn-sm"><i data-lucide="plus"></i></button>
     </form>
 </div>
 {% else %}
 <div class="empty-card">
-    <i class="lucide lucide-list-checks"></i>
+    <i data-lucide="list-checks"></i>
     <p>No tasks yet. Add one above.</p>
 </div>
 {% endfor %}

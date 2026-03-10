@@ -2,25 +2,25 @@
 {% block title %}{{ goal.title }} — LifeOS{% endblock %}
 {% block content %}
 <div class="page-hero">
-    <a href="/domains/{{ goal.domain_id }}" class="back-link"><i class="lucide lucide-arrow-left"></i> Back to domain</a>
-    <h1><i class="lucide lucide-target"></i> {{ goal.title }}</h1>
+    <a href="/domains/{{ goal.domain_id }}" class="back-link"><i data-lucide="arrow-left"></i> Back to domain</a>
+    <h1><i data-lucide="target"></i> {{ goal.title }}</h1>
     {% if goal.description %}<p class="muted">{{ goal.description }}</p>{% endif %}
 </div>
 
 <section>
     <div class="section-header">
-        <h2><i class="lucide lucide-clipboard-list"></i> Plans</h2>
+        <h2><i data-lucide="clipboard-list"></i> Plans</h2>
     </div>
 
     <form hx-post="/api/plans" hx-target="#plan-list" hx-swap="innerHTML" class="inline-form">
         <input type="hidden" name="goal_id" value="{{ goal.id }}">
         <div class="form-group">
-            <i class="lucide lucide-plus form-icon"></i>
+            <i data-lucide="plus form-icon"></i>
             <input type="text" name="title" placeholder="Plan title..." required class="input input-icon">
         </div>
         <input type="date" name="plan_date" value="{{ today.isoformat() }}" required class="input">
         <input type="text" name="description" placeholder="Description (optional)" class="input">
-        <button type="submit" class="btn btn-primary"><i class="lucide lucide-plus"></i> Add</button>
+        <button type="submit" class="btn btn-primary"><i data-lucide="plus"></i> Add</button>
     </form>
 
     <div id="plan-list">

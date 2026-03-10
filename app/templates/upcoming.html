@@ -2,7 +2,7 @@
 {% block title %}Upcoming — LifeOS{% endblock %}
 {% block content %}
 <div class="page-hero">
-    <h1><i class="lucide lucide-calendar-range"></i> Upcoming</h1>
+    <h1><i data-lucide="calendar-range"></i> Upcoming</h1>
     <p class="subtitle">Next 30 days from {{ today.strftime('%B %d, %Y') }}</p>
 </div>
 
@@ -13,7 +13,7 @@
             {% set ns.current_date = plan.plan_date %}
             <div class="date-divider">
                 <span class="date-label">
-                    <i class="lucide lucide-calendar"></i>
+                    <i data-lucide="calendar"></i>
                     {{ plan.plan_date.strftime('%A, %B %d') }}
                     {% if plan.plan_date == today %}
                     <span class="badge badge-primary">Today</span>
@@ -24,7 +24,7 @@
         <div class="upcoming-plan-card">
             <a href="/plans/{{ plan.id }}" class="plan-link">
                 <div class="plan-row-left">
-                    <i class="lucide lucide-clipboard-list"></i>
+                    <i data-lucide="clipboard-list"></i>
                     <div>
                         <span class="plan-title">{{ plan.title }}</span>
                         {% if plan.tasks %}
@@ -42,7 +42,7 @@
     {% endfor %}
 {% else %}
     <div class="empty-state">
-        <div class="empty-icon"><i class="lucide lucide-calendar-check"></i></div>
+        <div class="empty-icon"><i data-lucide="calendar-check"></i></div>
         <p>No upcoming plans. Start by creating goals and plans in your domains.</p>
     </div>
 {% endif %}

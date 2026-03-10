@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Dashboard — LifeOS{% endblock %}
 {% block content %}
-<div class="page-hero">
-    <h1><i class="lucide lucide-layout-dashboard"></i> Dashboard</h1>
-    <p class="subtitle">{{ today.strftime('%A, %B %d, %Y') }}</p>
-</div>
 
 {% set domain_icons = {
     'WORK': 'briefcase',
@@ -15,52 +11,110 @@
     'WORKOUTS': 'dumbbell'
 } %}
 
-<section class="card-grid">
-    {% for domain in domains %}
-    <a href="/domains/{{ domain.id }}" class="domain-card" style="--domain-color: {{ domain.color }}">
-        <div class="domain-card-icon" style="background: {{ domain.color }}20; color: {{ domain.color }}">
-            <i class="lucide lucide-{{ domain_icons.get(domain.domain_type.value, 'circle') }}"></i>
+<!-- Hero header -->
+<div class="page-hero">
+    <div class="hero-row">
+        <div>
+            <h1><i data-lucide="layout-dashboard"></i> Dashboard</h1>
+            <p class="subtitle"><i data-lucide="calendar-days"></i> {{ today.strftime('%A, %B %d, %Y') }}</p>
         </div>
-        <div class="domain-card-body">
-            <h3>{{ domain.name }}</h3>
-            <p class="muted">{{ domain.description or '' }}</p>
-            <span class="badge">{{ domain.goals | length }} goal{{ 's' if domain.goals | length != 1 else '' }}</span>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <i data-lucide="target"></i>
+                <span><strong>{{ domains | map(attribute='goals') | map('length') | sum }}</strong> goals</span>
+            </div>
+            <div class="hero-stat">
+                <i data-lucide="clipboard-list"></i>
+                <span><strong>{{ today_plans | length }}</strong> plans today</span>
+            </div>
         </div>
-    </a>
-    {% endfor %}
+    </div>
+</div>
+
+<!-- Network access banner -->
+<div class="network-banner">
+    <div class="network-banner-left">
+        <i data-lucide="wifi"></i>
+        <div>
+            <span class="network-banner-title">Open from any device on your WiFi</span>
+            <span class="network-banner-url">http://{{ local_ip }}:8000</span>
+        </div>
+    </div>
+    <div class="network-banner-right">
+        <i data-lucide="smartphone"></i>
+        <i data-lucide="tablet"></i>
+        <i data-lucide="monitor"></i>
+    </div>
+</div>
+
+<!-- Domain cards -->
+<section>
+    <div class="section-header">
+        <h2><i data-lucide="grid-3x3"></i> Life Domains</h2>
+    </div>
+    <div class="card-grid">
+        {% for domain in domains %}
+        <a href="/domains/{{ domain.id }}" class="domain-card" style="--domain-color: {{ domain.color }}">
+            <div class="domain-card-icon" style="background: {{ domain.color }}22; color: {{ domain.color }}">
+                <i data-lucide="{{ domain_icons.get(domain.domain_type.value, 'circle') }}"></i>
+            </div>
+            <div class="domain-card-body">
+                <h3>{{ domain.name }}</h3>
+                <p class="muted">{{ domain.description or '' }}</p>
+                <div class="domain-card-meta">
+                    <span class="badge"><i data-lucide="target"></i> {{ domain.goals | length }} goal{{ 's' if domain.goals | length != 1 else '' }}</span>
+                </div>
+            </div>
+            <i data-lucide="chevron-right" class="domain-card-arrow"></i>
+        </a>
+        {% endfor %}
+    </div>
 </section>
 
 <!-- Today's Plans -->
 <section class="mt-2">
     <div class="section-header">
-        <h2><i class="lucide lucide-sun"></i> Today's Plans</h2>
-        <a href="/today" class="link-subtle">View all <i class="lucide lucide-arrow-right"></i></a>
+        <h2><i data-lucide="sun"></i> Today's Plans</h2>
+        <a href="/today" class="link-subtle"><i data-lucide="arrow-right"></i> View all</a>
     </div>
     {% if today_plans %}
         {% for plan in today_plans %}
+        {% set done  = plan.tasks | selectattr('status.value', 'equalto', 'DONE') | list | length %}
+        {% set total = plan.tasks | length %}
+        {% set pct   = ((done / total * 100) | int) if total else 0 %}
         <a href="/plans/{{ plan.id }}" class="plan-row">
             <div class="plan-row-left">
-                <i class="lucide lucide-clipboard-list"></i>
-                <span class="plan-title">{{ plan.title }}</span>
+                <div class="plan-row-icon {{ 'plan-icon-done' if pct == 100 else '' }}">
+                    <i data-lucide="{{ 'check-circle-2' if pct == 100 else 'clipboard-list' }}"></i>
+                </div>
+                <div>
+                    <span class="plan-title">{{ plan.title }}</span>
+                    <span class="muted small">
+                        {% if total == 0 %}
+                            <i data-lucide="circle-dashed"></i> No tasks yet
+                        {% elif pct == 100 %}
+                            <i data-lucide="check-circle-2"></i> All done!
+                        {% else %}
+                            <i data-lucide="clock"></i> {{ total - done }} remaining
+                        {% endif %}
+                    </span>
+                </div>
             </div>
             <div class="plan-row-right">
-                {% set done = plan.tasks | selectattr('status.value', 'equalto', 'DONE') | list | length %}
-                {% set total = plan.tasks | length %}
                 {% if total > 0 %}
-                <div class="mini-progress">
-                    <div class="mini-progress-fill" style="width: {{ (done / total * 100) }}%"></div>
-                </div>
-                <span class="badge">{{ done }}/{{ total }}</span>
+                <div class="mini-progress"><div class="mini-progress-fill" style="width:{{ pct }}%"></div></div>
+                <span class="badge {{ 'badge-success' if pct == 100 else '' }}">{{ done }}/{{ total }}</span>
                 {% else %}
-                <span class="badge">No tasks</span>
+                <span class="badge"><i data-lucide="plus"></i> Add tasks</span>
                 {% endif %}
             </div>
         </a>
         {% endfor %}
     {% else %}
         <div class="empty-card">
-            <i class="lucide lucide-calendar-off"></i>
-            <p>No plans for today yet. Go to a goal to create one.</p>
+            <i data-lucide="calendar-off"></i>
+            <p>No plans for today yet.</p>
+            <span class="muted small">Pick a domain above → open a goal → add a plan for today.</span>
         </div>
     {% endif %}
 </section>
@@ -68,27 +122,29 @@
 <!-- Upcoming Plans -->
 <section class="mt-2">
     <div class="section-header">
-        <h2><i class="lucide lucide-calendar-range"></i> Upcoming (Next 7 Days)</h2>
-        <a href="/upcoming" class="link-subtle">View all <i class="lucide lucide-arrow-right"></i></a>
+        <h2><i data-lucide="calendar-range"></i> Upcoming — Next 7 Days</h2>
+        <a href="/upcoming" class="link-subtle"><i data-lucide="arrow-right"></i> View 30 days</a>
     </div>
     {% if upcoming_plans %}
         {% for plan in upcoming_plans %}
         <a href="/plans/{{ plan.id }}" class="plan-row">
             <div class="plan-row-left">
-                <i class="lucide lucide-clipboard-list"></i>
+                <div class="plan-row-icon">
+                    <i data-lucide="clipboard-list"></i>
+                </div>
                 <div>
                     <span class="plan-title">{{ plan.title }}</span>
-                    <span class="muted small">{{ plan.plan_date.strftime('%a, %b %d') }}</span>
+                    <span class="muted small"><i data-lucide="calendar"></i> {{ plan.plan_date.strftime('%a, %b %d') }}</span>
                 </div>
             </div>
             <div class="plan-row-right">
-                <span class="badge">{{ plan.tasks | length }} task{{ 's' if plan.tasks | length != 1 else '' }}</span>
+                <span class="badge"><i data-lucide="list-checks"></i> {{ plan.tasks | length }} task{{ 's' if plan.tasks | length != 1 else '' }}</span>
             </div>
         </a>
         {% endfor %}
     {% else %}
         <div class="empty-card">
-            <i class="lucide lucide-calendar-check"></i>
+            <i data-lucide="calendar-check"></i>
             <p>No upcoming plans in the next 7 days.</p>
         </div>
     {% endif %}

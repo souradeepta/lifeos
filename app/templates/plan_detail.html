@@ -2,9 +2,9 @@
 {% block title %}{{ plan.title }} — LifeOS{% endblock %}
 {% block content %}
 <div class="page-hero">
-    <a href="/goals/{{ plan.goal_id }}" class="back-link"><i class="lucide lucide-arrow-left"></i> Back to goal</a>
-    <h1><i class="lucide lucide-clipboard-list"></i> {{ plan.title }}</h1>
-    <p class="muted"><i class="lucide lucide-calendar"></i> {{ plan.plan_date.strftime('%A, %B %d, %Y') }}</p>
+    <a href="/goals/{{ plan.goal_id }}" class="back-link"><i data-lucide="arrow-left"></i> Back to goal</a>
+    <h1><i data-lucide="clipboard-list"></i> {{ plan.title }}</h1>
+    <p class="muted"><i data-lucide="calendar"></i> {{ plan.plan_date.strftime('%A, %B %d, %Y') }}</p>
     {% if plan.description %}<p class="plan-desc">{{ plan.description }}</p>{% endif %}
 </div>
 
@@ -35,13 +35,13 @@
 
 <section>
     <div class="section-header">
-        <h2><i class="lucide lucide-list-checks"></i> Tasks</h2>
+        <h2><i data-lucide="list-checks"></i> Tasks</h2>
     </div>
 
     <form hx-post="/api/tasks" hx-target="#task-list" hx-swap="innerHTML" class="inline-form">
         <input type="hidden" name="plan_id" value="{{ plan.id }}">
         <div class="form-group">
-            <i class="lucide lucide-plus form-icon"></i>
+            <i data-lucide="plus form-icon"></i>
             <input type="text" name="title" placeholder="New task..." required class="input input-icon">
         </div>
         <input type="text" name="description" placeholder="Description (optional)" class="input">
@@ -50,7 +50,7 @@
             <option value="1">High</option>
             <option value="2">Urgent</option>
         </select>
-        <button type="submit" class="btn btn-primary"><i class="lucide lucide-plus"></i> Add</button>
+        <button type="submit" class="btn btn-primary"><i data-lucide="plus"></i> Add</button>
     </form>
 
     <div id="task-list">

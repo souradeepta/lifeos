@@ -1,0 +1,16 @@
+[Unit]
+Description=LifeOS Personal Productivity App
+After=network.target
+
+[Service]
+Type=simple
+User=johnsmith
+WorkingDirectory=/home/johnsmith/github/lifeos
+ExecStart=/home/johnsmith/github/lifeos/myenv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

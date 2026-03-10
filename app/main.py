@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+import socket
 
 import structlog
 from fastapi import FastAPI
@@ -10,6 +11,17 @@ from app.database import engine, async_session, Base
 from app.models import Domain, Goal, Plan, Task, Subtask  # noqa: F401 — register models
 from app.routers import pages, api
 from app.services.domain_service import seed_domains
+
+
+def get_local_ip() -> str:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "localhost"
 
 structlog.configure(
     processors=[
@@ -35,6 +47,7 @@ async def lifespan(app: FastAPI):  # type: ignore[no-untyped-def]
     async with async_session() as db:
         await seed_domains(db)
 
+    log.info("startup_complete", local_ip=app.state.local_ip, port=8000)
     yield
 
     await engine.dispose()
@@ -42,6 +55,7 @@ async def lifespan(app: FastAPI):  # type: ignore[no-untyped-def]
 
 
 app = FastAPI(title="LifeOS", version="0.1.0", lifespan=lifespan)
+app.state.local_ip = get_local_ip()
 
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.state.templates = Jinja2Templates(directory=APP_DIR / "templates")

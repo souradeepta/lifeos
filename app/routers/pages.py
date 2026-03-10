@@ -25,6 +25,7 @@ async def dashboard(request: Request, db: AsyncSession = Depends(get_db)) -> "Re
             "today_plans": today_plans,
             "upcoming_plans": upcoming_plans,
             "today": today,
+            "local_ip": request.app.state.local_ip,
         },
     )
 
@@ -36,7 +37,7 @@ async def domain_detail(request: Request, domain_id: int, db: AsyncSession = Dep
     goals = await goal_service.list_goals(db, domain_id=domain_id)
     return request.app.state.templates.TemplateResponse(
         "domain_detail.html",
-        {"request": request, "domains": domains, "domain": domain, "goals": goals},
+        {"request": request, "domains": domains, "domain": domain, "goals": goals, "local_ip": request.app.state.local_ip},
     )
 
 
@@ -47,7 +48,7 @@ async def goal_detail(request: Request, goal_id: int, db: AsyncSession = Depends
     domains = await domain_service.list_domains(db)
     return request.app.state.templates.TemplateResponse(
         "goal_detail.html",
-        {"request": request, "goal": goal, "plans": plans, "domains": domains, "today": date.today()},
+        {"request": request, "goal": goal, "plans": plans, "domains": domains, "today": date.today(), "local_ip": request.app.state.local_ip},
     )
 
 
@@ -58,7 +59,7 @@ async def plan_detail(request: Request, plan_id: int, db: AsyncSession = Depends
     domains = await domain_service.list_domains(db)
     return request.app.state.templates.TemplateResponse(
         "plan_detail.html",
-        {"request": request, "plan": plan, "tasks": tasks, "domains": domains},
+        {"request": request, "plan": plan, "tasks": tasks, "domains": domains, "local_ip": request.app.state.local_ip},
     )
 
 
@@ -69,7 +70,7 @@ async def today_view(request: Request, db: AsyncSession = Depends(get_db)) -> "R
     domains = await domain_service.list_domains(db)
     return request.app.state.templates.TemplateResponse(
         "today.html",
-        {"request": request, "plans": plans, "domains": domains, "today": today},
+        {"request": request, "plans": plans, "domains": domains, "today": today, "local_ip": request.app.state.local_ip},
     )
 
 
@@ -82,5 +83,5 @@ async def upcoming_view(request: Request, db: AsyncSession = Depends(get_db)) ->
     )
     return request.app.state.templates.TemplateResponse(
         "upcoming.html",
-        {"request": request, "plans": plans, "domains": domains, "today": today},
+        {"request": request, "plans": plans, "domains": domains, "today": today, "local_ip": request.app.state.local_ip},
     )
