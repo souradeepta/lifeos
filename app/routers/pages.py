@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.services import domain_service, goal_service, plan_service, task_service
+from app.services import recurring_service
 
 router = APIRouter(tags=["pages"])
 
@@ -14,6 +15,7 @@ router = APIRouter(tags=["pages"])
 async def dashboard(request: Request, db: AsyncSession = Depends(get_db)) -> "Response":
     domains = await domain_service.list_domains(db)
     today = date.today()
+    await recurring_service.materialize_for_date(db, today)
     today_plans = await plan_service.list_plans(db, plan_date=today)
     upcoming_plans = await plan_service.list_plans_in_range(
         db, start_date=today + timedelta(days=1), end_date=today + timedelta(days=7)
@@ -47,9 +49,10 @@ async def goal_detail(request: Request, goal_id: int, db: AsyncSession = Depends
     goal = await goal_service.get_goal(db, goal_id)
     plans = await plan_service.list_plans(db, goal_id=goal_id)
     domains = await domain_service.list_domains(db)
+    recurring_plans = await recurring_service.list_recurring_plans(db, goal_id=goal_id)
     return request.app.state.templates.TemplateResponse(
         "goal_detail.html",
-        {"request": request, "goal": goal, "plans": plans, "domains": domains, "today": date.today(), "local_ip": request.app.state.local_ip},
+        {"request": request, "goal": goal, "plans": plans, "domains": domains, "today": date.today(), "local_ip": request.app.state.local_ip, "recurring_plans": recurring_plans},
     )
 
 
@@ -67,6 +70,7 @@ async def plan_detail(request: Request, plan_id: int, db: AsyncSession = Depends
 @router.get("/today")
 async def today_view(request: Request, db: AsyncSession = Depends(get_db)) -> "Response":
     today = date.today()
+    await recurring_service.materialize_for_date(db, today)
     plans = await plan_service.list_plans(db, plan_date=today)
     domains = await domain_service.list_domains(db)
     return request.app.state.templates.TemplateResponse(

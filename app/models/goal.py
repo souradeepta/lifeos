@@ -23,6 +23,7 @@ class Goal(Base):
 
     domain: Mapped["Domain"] = relationship(back_populates="goals")  # noqa: F821
     plans: Mapped[list["Plan"]] = relationship(back_populates="goal", cascade="all, delete-orphan")  # noqa: F821
+    recurring_plans: Mapped[list["RecurringPlan"]] = relationship(back_populates="goal", cascade="all, delete-orphan")  # noqa: F821
 
     def __repr__(self) -> str:
         return f"<Goal {self.title!r}>"

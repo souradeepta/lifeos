@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.database import engine, async_session, Base
-from app.models import Domain, Goal, Plan, Task, Subtask  # noqa: F401 — register models
+from app.models import Domain, Goal, Plan, Task, Subtask, RecurringPlan, RecurringTask  # noqa: F401 — register models
 from app.routers import pages, api
 from app.services.domain_service import seed_domains
 

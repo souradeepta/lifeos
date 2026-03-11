@@ -9,6 +9,52 @@
 
 <section>
     <div class="section-header">
+        <h2><i data-lucide="repeat"></i> Recurring Plans</h2>
+    </div>
+
+    <div id="recurring-plan-list">
+        {% include "partials/recurring_plan_list.html" %}
+    </div>
+
+    <details style="margin-top:1rem;">
+        <summary class="btn btn-ghost" style="cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem;">
+            <i data-lucide="plus" style="width:15px;height:15px;"></i> Add recurring plan
+        </summary>
+        <form hx-post="/api/recurring-plans"
+              hx-target="#recurring-plan-list"
+              hx-swap="innerHTML"
+              hx-on::after-request="this.reset()"
+              class="inline-form"
+              style="margin-top:0.75rem; padding:1rem; background:var(--surface-2); border-radius:0.5rem; border:1px solid var(--border);">
+            <input type="hidden" name="goal_id" value="{{ goal.id }}">
+            <input type="text" name="title" placeholder="Plan title (e.g. Morning workout)" required class="input">
+            <select name="recurrence_type" class="input" required>
+                <option value="DAILY">Daily</option>
+                <option value="WEEKDAYS">Weekdays (Mon–Fri)</option>
+                <option value="WEEKLY">Weekly (Mondays)</option>
+            </select>
+            <input type="text" name="description" placeholder="Description (optional)" class="input">
+            <div id="task-inputs">
+                <input type="text" name="task_title" placeholder="Task (e.g. 5 pushups)" class="input" style="margin-bottom:0.4rem;">
+            </div>
+            <button type="button" class="btn btn-ghost" style="font-size:0.85rem;"
+                onclick="(function(){
+                    var c=document.createElement('input');
+                    c.type='text'; c.name='task_title';
+                    c.placeholder='Another task...';
+                    c.className='input';
+                    c.style.marginBottom='0.4rem';
+                    document.getElementById('task-inputs').appendChild(c);
+                })()">
+                <i data-lucide="plus" style="width:14px;height:14px;"></i> Add task
+            </button>
+            <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Save recurring plan</button>
+        </form>
+    </details>
+</section>
+
+<section>
+    <div class="section-header">
         <h2><i data-lucide="clipboard-list"></i> Plans</h2>
     </div>
 

@@ -7,7 +7,9 @@ from app.database import get_db
 from app.schemas.goal import GoalCreate, GoalUpdate
 from app.schemas.plan import PlanCreate, PlanUpdate
 from app.schemas.task import TaskCreate, TaskUpdate, SubtaskCreate, SubtaskUpdate
+from app.schemas.recurring import RecurringPlanCreate, RecurringPlanUpdate
 from app.services import domain_service, goal_service, plan_service, task_service
+from app.services import recurring_service
 
 router = APIRouter(prefix="/api", tags=["api"])
 
@@ -245,6 +247,62 @@ async def toggle_subtask(
     return request.app.state.templates.TemplateResponse(
         "partials/subtask_list.html",
         {"request": request, "task": task},
+    )
+
+
+# --- Recurring Plans ---
+
+@router.post("/recurring-plans")
+async def create_recurring_plan(
+    request: Request, db: AsyncSession = Depends(get_db)
+) -> "Response":
+    form = await request.form()
+    task_titles = form.getlist("task_title")
+    data = RecurringPlanCreate(
+        goal_id=int(form["goal_id"]),
+        title=str(form["title"]),
+        description=str(form.get("description", "")) or None,
+        recurrence_type=str(form["recurrence_type"]),
+        tasks=[{"title": t, "priority": i} for i, t in enumerate(task_titles) if t.strip()],
+    )
+    await recurring_service.create_recurring_plan(db, data)
+    recurring_plans = await recurring_service.list_recurring_plans(db, goal_id=data.goal_id)
+    return request.app.state.templates.TemplateResponse(
+        "partials/recurring_plan_list.html",
+        {"request": request, "recurring_plans": recurring_plans, "goal_id": data.goal_id},
+    )
+
+
+@router.patch("/recurring-plans/{rp_id}/toggle")
+async def toggle_recurring_plan(
+    request: Request, rp_id: int, db: AsyncSession = Depends(get_db)
+) -> "Response":
+    rp = await recurring_service.get_recurring_plan(db, rp_id)
+    if not rp:
+        raise HTTPException(status_code=404)
+    goal_id = rp.goal_id
+    data = RecurringPlanUpdate(is_active=not rp.is_active)
+    await recurring_service.update_recurring_plan(db, rp_id, data)
+    recurring_plans = await recurring_service.list_recurring_plans(db, goal_id=goal_id)
+    return request.app.state.templates.TemplateResponse(
+        "partials/recurring_plan_list.html",
+        {"request": request, "recurring_plans": recurring_plans, "goal_id": goal_id},
+    )
+
+
+@router.delete("/recurring-plans/{rp_id}")
+async def delete_recurring_plan(
+    request: Request, rp_id: int, db: AsyncSession = Depends(get_db)
+) -> "Response":
+    rp = await recurring_service.get_recurring_plan(db, rp_id)
+    if not rp:
+        raise HTTPException(status_code=404)
+    goal_id = rp.goal_id
+    await recurring_service.delete_recurring_plan(db, rp_id)
+    recurring_plans = await recurring_service.list_recurring_plans(db, goal_id=goal_id)
+    return request.app.state.templates.TemplateResponse(
+        "partials/recurring_plan_list.html",
+        {"request": request, "recurring_plans": recurring_plans, "goal_id": goal_id},
     )
 
 

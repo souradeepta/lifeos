@@ -1,0 +1,45 @@
+{% for rp in recurring_plans %}
+<div class="card" style="margin-bottom: 0.75rem;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+        <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+                <i data-lucide="repeat" style="width:16px; height:16px; color:var(--primary);"></i>
+                <strong>{{ rp.title }}</strong>
+                <span class="badge" style="font-size:0.7rem; padding:0.15rem 0.5rem; background:var(--primary-glow); color:var(--primary); border-radius:9999px;">
+                    {{ rp.recurrence_type.value }}
+                </span>
+                {% if not rp.is_active %}
+                <span class="badge" style="font-size:0.7rem; padding:0.15rem 0.5rem; background:var(--surface-2); color:var(--text-muted); border-radius:9999px;">paused</span>
+                {% endif %}
+            </div>
+            {% if rp.description %}<div class="muted" style="font-size:0.85rem; margin-top:0.25rem;">{{ rp.description }}</div>{% endif %}
+            {% if rp.recurring_tasks %}
+            <div style="margin-top:0.4rem; display:flex; flex-wrap:wrap; gap:0.4rem;">
+                {% for rt in rp.recurring_tasks %}
+                <span style="font-size:0.8rem; color:var(--text-muted);"><i data-lucide="check-square" style="width:12px;height:12px;"></i> {{ rt.title }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+            <button class="btn btn-ghost"
+                hx-patch="/api/recurring-plans/{{ rp.id }}/toggle"
+                hx-target="#recurring-plan-list"
+                hx-swap="innerHTML"
+                title="{{ 'Pause' if rp.is_active else 'Resume' }}">
+                <i data-lucide="{{ 'pause' if rp.is_active else 'play' }}" style="width:15px;height:15px;"></i>
+            </button>
+            <button class="btn btn-ghost"
+                hx-delete="/api/recurring-plans/{{ rp.id }}"
+                hx-target="#recurring-plan-list"
+                hx-swap="innerHTML"
+                hx-confirm="Delete this recurring plan?"
+                title="Delete">
+                <i data-lucide="trash-2" style="width:15px;height:15px; color:#ef4444;"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% else %}
+<p class="muted" style="font-size:0.9rem;">No recurring plans yet. Add one below.</p>
+{% endfor %}
